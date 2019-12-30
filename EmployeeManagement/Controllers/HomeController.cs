@@ -1,7 +1,9 @@
 ﻿using EmployeeManagement.Models;
 using EmployeeManagement.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,22 +12,26 @@ using System.Threading.Tasks;
 
 namespace EmployeeManagement.Controllers
 {
+    [Authorize]
     public class HomeController:Controller
     {
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IHostingEnvironment _hostingEnvironment;
-        public HomeController(IEmployeeRepository employeeRepository,IHostingEnvironment hostingEnvironment)
+        private readonly ILogger _logger;
+        public HomeController(IEmployeeRepository employeeRepository,IHostingEnvironment hostingEnvironment,ILogger logger)
         {
             _employeeRepository = employeeRepository;
             _hostingEnvironment = hostingEnvironment;
+            _logger = logger;
         }
+        [AllowAnonymous]
         public ViewResult Index()
         {
             return View(this._employeeRepository.GetEmployees());
         }
+        [AllowAnonymous]
         public ViewResult Details(int? id)
         {
-            throw new Exception("Error in Details View");
             Employee employee = this._employeeRepository.GetEmployee(id.Value);
             if(employee==null)
             {

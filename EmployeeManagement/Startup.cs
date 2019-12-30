@@ -6,10 +6,12 @@ using EmployeeManagement.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace EmployeeManagement
 {
@@ -25,8 +27,11 @@ namespace EmployeeManagement
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("EmployeeDBConnection")));
-            services.AddMvc().AddXmlSerializerFormatters();
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppDbContext>(); 
+            services.AddMvc();
             services.AddScoped<IEmployeeRepository, SQLEmployeeRepository>();
+            services.AddScoped<ILogger, Logger<SQLEmployeeRepository>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,6 +47,7 @@ namespace EmployeeManagement
                 app.UseStatusCodePagesWithRedirects("/Error/{0}");
             }
             app.UseStaticFiles();
+            app.UseAuthentication();
 
             app.UseMvc(routes => { routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}"); });
          
