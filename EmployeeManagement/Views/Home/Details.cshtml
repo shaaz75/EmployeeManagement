@@ -1,0 +1,12 @@
+﻿@model EmployeeManagement.ViewModels.HomeDetailsViewModel
+@{
+    ViewBag.Title= Model.PageTitle;
+
+}
+<h3>@Model.PageTitle</h3>
+<table>
+    <tr><td>Id</td><td>@Model.Employee.Id</td></tr>
+    <tr><td>Name</td><td>@Model.Employee.Name</td></tr>
+    <tr><td>Email</td><td>@Model.Employee.Email</td></tr>
+    <tr><td>Department</td><td>@Model.Employee.Department</td></tr>
+</table>

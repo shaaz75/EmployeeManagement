@@ -1,0 +1,12 @@
+﻿@model IEnumerable<EmployeeManagement.Models.Employee>
+@{
+    ViewBag.Title= "Index";
+
+}
+
+<table>
+    @foreach (var item in Model)
+    {
+        <tr><td>@item.Id</td><td>@item.Name</td><td>@item.Email</td><td>@item.Department</td></tr>
+    }
+</table>
