@@ -26,5 +26,9 @@ namespace EmployeeManagement.Controllers
             homeDetailsViewModel.PageTitle = "Details Page";
             return View(homeDetailsViewModel);
         }
+        public ViewResult Create()
+        {
+            return View();
+        }
     }
 }
