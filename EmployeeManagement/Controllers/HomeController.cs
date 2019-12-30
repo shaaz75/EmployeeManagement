@@ -1,8 +1,10 @@
 ﻿using EmployeeManagement.Models;
 using EmployeeManagement.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,9 +13,11 @@ namespace EmployeeManagement.Controllers
     public class HomeController:Controller
     {
         private readonly IEmployeeRepository _employeeRepository;
-        public HomeController(IEmployeeRepository employeeRepository)
+        private readonly IHostingEnvironment _hostingEnvironment;
+        public HomeController(IEmployeeRepository employeeRepository,IHostingEnvironment hostingEnvironment)
         {
             _employeeRepository = employeeRepository;
+            _hostingEnvironment = hostingEnvironment;
         }
         public ViewResult Index()
         {
@@ -31,12 +35,27 @@ namespace EmployeeManagement.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Create(Employee employee)
+        public IActionResult Create(EmployeeCreateViewModel employeeCreateViewModel)
         {
             if (ModelState.IsValid)
             {
-                Employee emp = this._employeeRepository.Add(employee);
-                //return RedirectToAction("Details", new { id = emp.Id });
+                string fileUniqueName = null;
+                if(employeeCreateViewModel.Photo!=null)
+                {
+                    string uploadsFolder = Path.Combine(this._hostingEnvironment.WebRootPath, "image");
+                    fileUniqueName = Guid.NewGuid() + "_" + employeeCreateViewModel.Photo.FileName;
+                    string filePath = Path.Combine(uploadsFolder, fileUniqueName);
+                    employeeCreateViewModel.Photo.CopyTo(new FileStream(filePath, FileMode.Create));
+                }
+                Employee employee = new Employee();
+                employee.Name = employeeCreateViewModel.Name;
+                employee.Email = employeeCreateViewModel.Email;
+                employee.Department = employeeCreateViewModel.Department;
+                employee.PhotoPath = fileUniqueName;
+
+                _employeeRepository.Add(employee);
+
+                return RedirectToAction("Details", new { id = employee.Id });
             }
             return View();
         }

@@ -44,6 +44,10 @@
         <div>
             @RenderBody()
         </div>
+        @if (IsSectionDefined("Scripts"))
+        {
+            @RenderSection("Scripts", required: true)
+        }
     </div>
 </body>
 </html>
