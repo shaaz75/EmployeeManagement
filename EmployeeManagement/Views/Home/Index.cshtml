@@ -4,9 +4,21 @@
 
 }
 
-<table>
-    @foreach (var item in Model)
+<div class="card-deck">
+    @foreach (var employee in Model)
     {
-        <tr><td>@item.Id</td><td>@item.Name</td><td>@item.Email</td><td>@item.Department</td></tr>
+        <div class="card m-3">
+            <div class="card-header">
+                <h3>@employee.Name</h3>
+            </div>
+            <div class="card-body">
+                <img class="card-img-top" src="~/image/nopic.png" />
+            </div>
+            <div class="card-footer text-center">
+                <a href="#" class="btn btn-primary">View</a>
+                <a href="#" class="btn btn-primary">Edit</a>
+                <a href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
     }
-</table>
+</div>

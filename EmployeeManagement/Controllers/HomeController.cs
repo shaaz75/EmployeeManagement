@@ -15,12 +15,10 @@ namespace EmployeeManagement.Controllers
         {
             _employeeRepository = employeeRepository;
         }
-        [Route("Home/Index")]
         public ViewResult Index()
         {
             return View(this._employeeRepository.GetEmployees());
         }
-        [Route("Home/Details/{id?}")]
         public ViewResult Details(int? id)
         {
             HomeDetailsViewModel homeDetailsViewModel = new HomeDetailsViewModel();
