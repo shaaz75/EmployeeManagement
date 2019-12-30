@@ -6,6 +6,7 @@ using EmployeeManagement.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,17 +36,19 @@ namespace EmployeeManagement
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseStaticFiles();
-            app.UseMvcWithDefaultRoute();
-            //app.UseMvc(routes =>
-            //{
-            //    routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
-            //});
-         
-            app.Run(async (context) =>
+            else
             {
-                await context.Response.WriteAsync("Hello World!1");
-            });
+                app.UseExceptionHandler("/Error");
+                app.UseStatusCodePagesWithRedirects("/Error/{0}");
+            }
+            app.UseStaticFiles();
+
+            app.UseMvc(routes => { routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}"); });
+         
+            //app.Run(async (context) =>
+            //{
+            //    await context.Response.WriteAsync("Hello World!1");
+            //});
         }
     }
 }
