@@ -15,14 +15,16 @@ namespace EmployeeManagement.Controllers
         {
             _employeeRepository = employeeRepository;
         }
+        [Route("Home/Index")]
         public ViewResult Index()
         {
             return View(this._employeeRepository.GetEmployees());
         }
-        public ViewResult Details()
+        [Route("Home/Details/{id?}")]
+        public ViewResult Details(int? id)
         {
             HomeDetailsViewModel homeDetailsViewModel = new HomeDetailsViewModel();
-            homeDetailsViewModel.Employee = this._employeeRepository.GetEmployee(1);
+            homeDetailsViewModel.Employee = this._employeeRepository.GetEmployee(id??1);
             homeDetailsViewModel.PageTitle = "Details Page";
             return View(homeDetailsViewModel);
         }
