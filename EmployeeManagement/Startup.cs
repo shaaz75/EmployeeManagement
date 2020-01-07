@@ -28,6 +28,10 @@ namespace EmployeeManagement
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.AccessDeniedPath = new PathString("/Admin/AccessDenied");
+            });
             services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("EmployeeDBConnection")));
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>();
@@ -39,6 +43,17 @@ namespace EmployeeManagement
             //    options.Filters.Add(new AuthorizeFilter(policy));
             //});
             services.AddMvc();
+            services.AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    options.ClientId = "1067966191350-9u93kk3dnu8nvi07q7kpgvrmv37lrhvn.apps.googleusercontent.com";
+                    options.ClientSecret = "LwTnSFKlTmGu3y4KrMgwJ9Mc";
+                });
+            services.AddAuthorization(options => 
+            {
+                options.AddPolicy("DeleteRolePolicy",
+                 policy => policy.RequireClaim("Delete Role"));
+            });
             services.AddScoped<IEmployeeRepository, SQLEmployeeRepository>();
             services.AddScoped<ILogger, Logger<SQLEmployeeRepository>>();
         }

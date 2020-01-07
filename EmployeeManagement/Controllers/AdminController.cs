@@ -184,6 +184,7 @@ namespace EmployeeManagement.Controllers
            
         }
 
+        [Authorize(Policy ="DeleteRolePolicy")]
         public async Task<IActionResult> DeleteRole(string Id)
         {
             var role = await this.roleManager.FindByIdAsync(Id);
@@ -427,6 +428,11 @@ namespace EmployeeManagement.Controllers
                 }
             }
             return View(model);
+        }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
     }
 }
