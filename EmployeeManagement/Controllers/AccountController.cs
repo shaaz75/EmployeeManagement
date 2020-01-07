@@ -39,6 +39,39 @@ namespace EmployeeManagement.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl)
+        {
+            model.ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            if (ModelState.IsValid)
+            {
+                var user = await userManager.FindByEmailAsync(model.Email);
+                if (user!=null && !user.EmailConfirmed && (await userManager.CheckPasswordAsync(user,model.Password)))
+                {
+                    ModelState.AddModelError(string.Empty, "Email not confirmed yet");
+                    return View(model);
+                }
+                var result = await signInManager.PasswordSignInAsync(
+                    model.Email, model.Password, model.RememberMe, false);
+
+                if (result.Succeeded)
+                {
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+                    else
+                    {
+                        return RedirectToAction("index", "home");
+                    }
+                }
+
+                ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
         [AllowAnonymous]
         public IActionResult ExternalLogin(string provider, string returnUrl)
         {
@@ -67,6 +100,20 @@ namespace EmployeeManagement.Controllers
                 ModelState.AddModelError(string.Empty, $"Error loading external login information");
                 return View("Login", model);
             }
+
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            ApplicationUser user = null;
+
+            if (email!= null)
+            {
+                user = await userManager.FindByEmailAsync(email);
+                if (user!=null && !user.EmailConfirmed)
+                {
+                    ModelState.AddModelError(string.Empty, $"Email not confirmed yet");
+                    return View("Login", model);
+                }
+            }
+
             var signInResult = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
 
             if(signInResult.Succeeded)
@@ -75,10 +122,8 @@ namespace EmployeeManagement.Controllers
             }
             else
             {
-                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
                 if(email!=null)
                 {
-                    var user = await userManager.FindByEmailAsync(email);
                     if(user==null)
                     {
                         user = new ApplicationUser
@@ -100,31 +145,7 @@ namespace EmployeeManagement.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model,string returnUrl)
-        {
-            if (ModelState.IsValid)
-            {
-                var result = await signInManager.PasswordSignInAsync(
-                    model.Email, model.Password, model.RememberMe, false);
-
-                if (result.Succeeded)
-                {
-                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                    {
-                        return Redirect(returnUrl);
-                    }
-                    else
-                    {
-                        return RedirectToAction("index", "home");
-                    }
-                }
-
-                ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
-            }
-
-            return View(model);
-        }
+       
 
         [AcceptVerbs("Get","Post")]
         
