@@ -35,28 +35,31 @@
             </button>
             <div class="collapse navbar-collapse" id="collapsibleNavbar">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a asp-action="Index" asp-controller="Home" class="nav-link">List</a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-action="Create" asp-controller="Home" class="nav-link">Create</a>
-                    </li>
-                    @if (SignInManage.IsSignedIn(User) && User.IsInRole("Admin"))
+                    @if (SignInManage.IsSignedIn(User) && (User.IsInRole("Admin")|| User.IsInRole("User")))
                     {
-                       <li class="nav-item dropdown">
-                           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
-                              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Manage</a>
-                           <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                               <a asp-action="ListUsers" asp-controller="Admin" class="dropdown-item">
-                                   Users
-                               </a>
-                               <a asp-action="ListRoles" asp-controller="Admin" class="dropdown-item">
-                                   Roles
-                               </a>
-                           </div>
-                       </li>
+                        <li class="nav-item">
+                            <a asp-action="Index" asp-controller="Home" class="nav-link">List</a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-action="Create" asp-controller="Home" class="nav-link">Create</a>
+                        </li>
                     }
-                </ul>
+                        @if (SignInManage.IsSignedIn(User) && User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Manage</a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <a asp-action="ListUsers" asp-controller="Admin" class="dropdown-item">
+                                        Users
+                                    </a>
+                                    <a asp-action="ListRoles" asp-controller="Admin" class="dropdown-item">
+                                        Roles
+                                    </a>
+                                </div>
+                            </li>
+                        }
+                    </ul>
                 <ul class="navbar-nav ml-auto">
                     @*If the user is signed-in display Logout link*@
                     @if (SignInManage.IsSignedIn(User))

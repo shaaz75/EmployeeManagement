@@ -1,7 +1,8 @@
 ﻿@model IEnumerable<Employee>
+@inject SignInManager<ApplicationUser> SignInManage
 @{
-    ViewBag.Title= "Index";
-    
+    ViewBag.Title = "Index";
+
 }
 
 <div class="card-deck">
@@ -16,9 +17,11 @@
                 <img class="card-img-top imageThumbnail" src="@ImagePath" asp-append-version="true" />
             </div>
             <div class="card-footer text-center">
-                <a asp-action="Details" asp-route-id="@employee.Id" class="btn btn-primary m-1">View</a>
-                <a asp-action="Edit" asp-route-id=@employee.Id class="btn btn-primary m-1">Edit</a>
-                <a asp-action="Delete" asp-route-id=@employee.Id class="btn btn-danger m-1">Delete</a>
+                @if (SignInManage.IsSignedIn(User) && (User.IsInRole("Admin") || User.IsInRole("User")))
+                {
+                    <a asp-action="Details" asp-route-id="@employee.EncryptedId" class="btn btn-primary m-1">View</a>
+                    <a asp-action="Edit" asp-route-id=@employee.EncryptedId class="btn btn-primary m-1">Edit</a>
+                }
             </div>
         </div>
     }

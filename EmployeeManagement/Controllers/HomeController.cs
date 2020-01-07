@@ -1,6 +1,8 @@
 ﻿using EmployeeManagement.Models;
+using EmployeeManagement.Security;
 using EmployeeManagement.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,35 +14,45 @@ using System.Threading.Tasks;
 
 namespace EmployeeManagement.Controllers
 {
-    [Authorize]
+    [Authorize(Roles ="Admin,User")]
     public class HomeController:Controller
     {
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IHostingEnvironment _hostingEnvironment;
         private readonly ILogger _logger;
-        public HomeController(IEmployeeRepository employeeRepository,IHostingEnvironment hostingEnvironment,ILogger logger)
+        private readonly IDataProtector protector;
+        public HomeController(IEmployeeRepository employeeRepository,IHostingEnvironment hostingEnvironment,ILogger<HomeController> logger,
+            IDataProtectionProvider dataProtectionProvider,DataProtectionPurposeStrings dataProtectionPurposeStrings)
         {
             _employeeRepository = employeeRepository;
             _hostingEnvironment = hostingEnvironment;
             _logger = logger;
+            protector = dataProtectionProvider.CreateProtector(dataProtectionPurposeStrings.EmployeeIdRouteValue);
         }
         [AllowAnonymous]
         public ViewResult Index()
         {
-            return View(this._employeeRepository.GetEmployees());
+           var model= this._employeeRepository.GetEmployees()
+                .Select(e =>
+                {
+                    e.EncryptedId = protector.Protect(e.Id.ToString());
+                    return e;
+                });
+            return View(model);
         }
         [AllowAnonymous]
-        public ViewResult Details(int? id)
+        public ViewResult Details(string id)
         {
-            Employee employee = this._employeeRepository.GetEmployee(id.Value);
+            int employeeId = Convert.ToInt32(protector.Unprotect(id));
+            Employee employee = this._employeeRepository.GetEmployee(employeeId);
             if(employee==null)
             {
                 Response.StatusCode = 404;
-                return View("EmployeeNotFound", id.Value);
+                return View("EmployeeNotFound", employeeId);
             }
             HomeDetailsViewModel homeDetailsViewModel = new HomeDetailsViewModel()
             {
-                Employee = _employeeRepository.GetEmployee(id ?? 1),
+                Employee = _employeeRepository.GetEmployee(employeeId),
                 PageTitle = "Employee Details"
             };
            
@@ -70,9 +82,10 @@ namespace EmployeeManagement.Controllers
             }
             return View();
         }
-        public ViewResult Edit(int id)
+        public ViewResult Edit(string id)
         {
-            Employee employee = _employeeRepository.GetEmployee(id);
+            int employeeId = Convert.ToInt32(protector.Unprotect(id));
+            Employee employee = _employeeRepository.GetEmployee(employeeId);
             EmployeeEditViewModel employeeEditViewModel = new EmployeeEditViewModel();
             employeeEditViewModel.Name = employee.Name;
             employeeEditViewModel.Email = employee.Email;
