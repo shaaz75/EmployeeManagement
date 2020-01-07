@@ -33,10 +33,12 @@ namespace EmployeeManagement
                 options.AccessDeniedPath = new PathString("/Admin/AccessDenied");
             });
             services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("EmployeeDBConnection")));
-            services.AddIdentity<ApplicationUser, IdentityRole>(options=> {
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
                 options.SignIn.RequireConfirmedEmail = true;
             })
-                .AddEntityFrameworkStores<AppDbContext>();
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
             //services.AddMvc(options =>
             //{
             //    var policy = new AuthorizationPolicyBuilder()
